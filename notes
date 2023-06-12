@@ -1,0 +1,358 @@
+== === server build ===
+
+ > vim /etc/sysconfig/network-scripts/ifcfg-enp0s3  (path to network configuration file)
+BOOTPRO=static (change dhcp to static)
+ONBOOT=yes (change no to yes)
+add below lines
+IPADDR=192.168.100.NEW ITEM
+NETMASK=255.255.255.0
+GATEWAY=192.168.100.1
+DNS=192.168.100.1
+DNS1=8.8.8.8
+> systemctl restart network (to restart network)
+> ping
+> :q just quit not save
+> :wq  save and quit 
+shutdown -r
+reboot
+
+
+
+=== work around ==
+> hostname -I  (to chk ip)
+> hostnamectl set-hostname any name (to sethostname)
+> w   (chk user info
+> users: chk users in home directoy
+> ll   (long list)
+> ls    (short list)
+> cd   (change directory)
+> cd ..  (one step back from directory)
+> mkdir  (create new directory)
+> mkdir -p (create sub directory of a directory)
+> man       (help)
+> chown    (change owner)
+> locate
+> touch   create empty file
+> cat      display the content of file
+> pwd     
+> chmod change permissions   i.e (u+rw,go+r-x file.txt)
+> su -
+> ls -l
+> ls -ld 
+> 
+> grep Mem Total /proc/meminfo
+> grep  grep option filename  (grep -i option file name)
+> uptime  (how long server is running and load average)
+> uname -r (check kernel version)
+> uname -n (check hostname)
+> uname -a (tell details about vm)
+> whoami    (tell about currunt user)
+> head      (show first 10 lines of a file)
+> tail       (show last 10 lines of a file)
+> ln -s      soft link(ln -s path of file  filename as a shortcut)(ln -s dir1/dir2/dir3/testfile softlink
+> ssh-keygen 
+> ssh-keygen -R (ip)   fix error ssh (host key verification failed)
+> ssh-copy-id 192....103  (for passward less entery jump one server to another)
+> rm -rf
+> touch   (create blank file)
+> date
+> cp     (copy file)
+> wc     (word count)
+> open ssl -1
+>  
+=== yum ===
+> yum -y update pkg name (to update any pkg e.g kernel)
+> yum -y install pkg name     (install any pkg e.g epel-release,tree,)
+> rpm -qa  pkg name            (to chk any pkg e.g epel-release)
+> rpm -qa |grep ssh 
+> sudo yum remove pakage name
+
+
+
+
+
+
+=== vim ===
+  modes
+1) insert mode
+2) esc mode
+3) visual mode
+
+--commands--
+> k  up
+> l  right
+> h for let
+> j  or down
+> yy  copy (current line)
+> p  for paste
+> dd  for delete
+> e  end of the current word
+> b begning of current the word
+> cc delete text of current line and go to insert mode
+> gg  ( first line of the file)
+> shift+g=G (last line of the file)
+> w (begning of next word)
+> O (switch to insert mode and go to next line)
+> $ (end of current line)
+> 0 (begning of current line)
+> r (replace a letter ! first press r then desire letter)
+> x (delete a letter after cursor)
+> shift+x=X (delete a letter before a cursor)
+> shift+h=H (top line on screen)
+> shift+m=M (middle line on screen)
+> shift+l=L  (bottom line of screen)
+
+
+
+
+
+
+
+
+
+=====LVM===== 
+
+> lsblk
+  
+> pvcreate /dev/sdb
+  
+> vgcreate datavg /dev/sdb
+  
+> lvcreate -n (lv name) -L +1G (vg name)
+   
+> mkfs.xfs /dev/vg name/lv name
+
+> mkdir directory name
+
+> cp /etc/fstab /etc/fstab.bkp
+
+> vim /etc/fstab
+
+>  mount directory name
+
+> df -h
+
+
+
+
+----LV EXTEND----
+
+> pvcreate /dev/sd..
+> df -h /directory name
+> vgextend vgname/dev/sd..
+> lvextend -L +3G /dev/vgname/lvname -r  (lvextend -l 100%FREE /dev/vgname/lvname -r
+> df -h /projectname>  
+
+
+===NFS====
+ --server side configration--
+. yum -y install nfs-utils
+. systemctl start nfs
+. systemctl enable nfs
+. mkdir server  can not be used slash/ in root diectoy
+. mkdir apps
+. vim /etc/exports  servers 192.168...(rw,sync,no_root_squash)
+. exports -r
+
+--client side configration--
+
+. yum install nfs-utils
+. systemctl start nfs-utils
+. systemctl enable nfs-utils
+. showmount -e server side ip
+. mkdir mnt
+. cd mnt (create a mount point for link to serverside folder)
+. mkdir apps
+. mount server ip.....:/server/apps mnt/apps
+. df -h
+
+
+=== FIREWALL===
+ vim /etc/selinux
+ vim /etc/selinux/config
+> firewall-cmd --permanent --add-port=2049/tcp
+> firewall-cmd --permanent --add-port=2049/udp
+> firewall-cmd --permanent --add-port=111/tcp
+> firewall-cmd --permanent --add-port=111/udp
+
+> firewall-cmd --permanent --add-service=mountd
+> firewall-cmd --reload
+>  firewall-cmd --list-ports
+
+
+
+
+
+
+
+
+
+
+
+=== ANSIBLE===
+>yum -y install ansible
+>rpm -qa epel-release
+>vim hosts (static inventory)
+>vim ansible.cfg (configuration file ; forks by defualt = 5)
+>mkdir /all-yaml
+>cd /all-yaml
+>touch server-list.txt
+>vim server-list.txt
+(insert vm names/ip address i.e vm102,vm103)
+>cat server-list.txt
+>pwd
+>ssh vm102 (to check/verify whether keyless entry/connection is established)
+>exit
+>ssh vm103 (to check/verify whether keyless entry/connection is established)
+>exit
+==if can't connect to for example vm103== 
+ >vim /etc/hosts
+ >  vim /root/.ssh/known_hosts
+ > ssh vm103
+ >  ssh-copy-id vm103
+ > ssh vm103
+>ansible-doc ping/any module name (help for attributes)
+> ansible all -i server-list.txt -m ping
+>ansible-doc ping/any module name (help for attributes)
+/EXA (and hit enter then space until your require condition is seen) 
+> ansible all -i server-list.txt -m shell -a uptime (to check system runnigs uptime,users,load average)
+> ansible all -i /all-yaml/server-list.txt -m file -a "path=/tmp/my-dir/ state=directory" (directory will be created in all servers)(can give any name in path instead of my-dir)
+> ansible all -i /all-yaml/server-list.txt -m file -a "path=/etc/file-1 state=touch"(file will be created)(can give any name in path instead of file-1)
+> ansible all -i server-list.txt -m file -a "path=/tmp/file-1 mode='0644'"(to change permissons)
+> ansible all -i server-list.txt -m user -a "name=sara state=present"(adduser)
+> ansible all -i server-list.txt -m user -a "name=sara state=absent"(removeuser)
+> ansible all -i server-list.txt -m file -a "path=/tmp/file-1 owner=sara group=sara" (to change owner and group user(chown))
+> ansible all -i server-list.txt -m shell -a "reboot"(to reboot)[red color output]
+> ansible all -i /all-yaml/server-list.txt -m file -a "path=/tmp/file-2 state=absent"(to remove file/dir)
+> ansible all -i server-list.txt -m shell -a "shutdown now"(to shutdown)[red colored output]
+> ansible all -i server-list.txt -m yum -a "name=nfs-utils state=latest" (to install any package)
+>ansible all -i server-list.txt -m service -a "name=nfs state=started" (to start service)
+> ansible all -i server-list.txt -m service -a "name=nfs state=started enabled=yes"(to enable service)
+> ansible all -i server-list.txt -m firewalld -a "port=2049/tcp permanent=yes immediate=yes state=enabled" (to add port and reload)
+> ansible all -i server-list.txt -m firewalld -a "port=2049/udp permanent=yes immediate=yes state=enabled"(to add port and reload)
+> ansible all -i server-list.txt -m firewalld -a "port=111/tcp permanent=yes immediate=yes state=enabled"(to add port and reload)
+> ansible all -i server-list.txt -m firewalld -a "port=111/udp permanent=yes immediate=yes state=enabled"(to add port and reload)
+> ansible all -i server-list.txt -m lineinfile -a "path=/etc/exports line='/vm104nfsshare 192.168.100.102(rw,sync,no_root_squash)'" (to add a line in any file)
+
+
+
+
+
+===VERIFYING CHANGINGS IN MANAGED NODES===
+>cd /tmp
+>ls
+
+===MODULES(-m)===
+:- file (to create directory and file)
+:- shell (to execute commands in targeted nodes)
+:- yum (to install any packages)
+:- service (to start)
+:- firewalld (to add port)
+:- user (to add user)
+:- ping (to link servers)
+:- lineinfile (to add a line in any file)
+
+===FLAGS=====
+-m (module)
+-a (attribute)
+-i (inventory)
+-k (to copy ssh key if not copied)
+
+===DIFFERENT COLORS===
+GREAN = UNCHANGED 
+YELLOW = CHANGED
+RED   = UNREACHABLE
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+====GIT HUB===
+. >  yum -y install git
+   >  cd .ssh
+   >  ll
+   >  cd id_rsa.pub
+   >  cat id_rsa.pub
+   >  cd
+   >  mkdir gitproject
+   >  cd gitproject
+   >  git config --global user.email "aquamarineluck097@gmail.com"
+   >  git config --global user.email "Aliya645"
+   >  vim gitfile1
+   >  git init .
+   >  git status
+   >  git add .
+   >  git status
+   >  git commit gitfile1 -m "message"
+   >  git branch
+   > git branch dev-branch
+   >  git branch
+   >  git checkout dev-branch
+    > git branch 
+
+====USER MANAGEMENT===
+> useradd
+> groupadd 
+
+-----options for useradd---
+
+> useradd -g (existing group name) -s /bin/bash -c "comments" -m create home directory -d /home/username
+ id user name (check user info)
+> ----USER DELL---< 
+> userdel <user name>
+> userdel -r  remove all data about user 
+> userdel -f  (forcefully delete if user is logged in)
+
+
+------MODIFY USER-------
+
+. To add user to a new group but default group remain same
+ 
+usermod -G <group name> <user name>
+ EXA: usermod -G developers ali
+. To change default group
+
+usermod -g <group name><user name>
+id ali
+: 
+> less /etc/group  (chk group info)
+
+
+
+
+
+
+======FILESYSTEM=======
+> truncate -s   (the truncate command is used for shrinking r extending the size of file
+                    it can  be used for create a file of a certain size by specifying the size with -s opention)
+
+> 
+
+
+
+
+=======NIC teaming======
+
+> shutdown vm >SETTING> select required adapter> slect Bridge adapter 
+> IFconfig for chk adding card
+> CD /etc/sysconfig/network-scripts/
+> ll
+> cp ifcfg-enp0s3 ifcfg-enp0s8
+> uuidgen enp0s8  will generate keys and paste in configration setting
+> vim ifcfg-enp0s8
+> diff ifcfg-enp0s3 ifcfg-enp0s8
+> route -n
+nmcli nmcli connection add type team con-name teamdmz ifname teamdmz ipv4.addresses 192.168.18.45/24 ipv4.gateway 192.168.18.1 ipv4.dns 192.168.18.1 ipv4.method manual autoconnect yes config '{"runner": {"name": "roundrobin"}}'
+
+
+
