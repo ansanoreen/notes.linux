@@ -135,7 +135,7 @@ reboot
 
 
 
-----LV EXTEND----
+----LVm EXTEND----
 
 > pvcreate /dev/sd..
 > df -h /directory name
